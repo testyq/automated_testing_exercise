@@ -51,11 +51,11 @@ def search_by_image(image_path):
         WebDriverWait(driver, timeout=5, poll_frequency=0.5).until(wait_condition_3)
 
         # Calculate the image position in the search result
-        result_image_colum = VISIT_RESULT % SEARCH_RESULT_COLUMN_NUM
+        result_image_column = VISIT_RESULT % SEARCH_RESULT_COLUMN_NUM
         result_image_offset = int(VISIT_RESULT / SEARCH_RESULT_COLUMN_NUM) + 1
 
         # Click on the specified result
-        result_xpath = f"//*[@id='yDmH0d']/c-wiz/div/div[2]/div/c-wiz/div/div[2]/c-wiz/div/div/div/div[2]/div[1]/div/div/div/div/div/div/div/div[{result_image_colum}]/div[{result_image_offset}]/div/a/div/div[1]/div/img"
+        result_xpath = f"//*[@id='yDmH0d']/c-wiz/div/div[2]/div/c-wiz/div/div[2]/c-wiz/div/div/div/div[2]/div[1]/div/div/div/div/div/div/div/div[{result_image_column}]/div[{result_image_offset}]/div/a/div/div[1]/div/img"
         result_element = driver.find_element(By.XPATH, result_xpath)
         result_element.click()
         sleep(5)
