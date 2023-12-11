@@ -1,8 +1,10 @@
 # coding=utf-8
 
 import os
+import time
 from selenium.webdriver import Chrome
 from selenium.webdriver.support import expected_conditions as page_check
+
 
 
 class TestExerciseScenarios(object):
@@ -11,6 +13,9 @@ class TestExerciseScenarios(object):
         self.driver = Chrome()
         self.driver.get("https://image.baidu.com/")
         self.driver.implicitly_wait("15")
+        
+    def teardown(self):
+        self.driver.close()
 
     def test_webpage_layout(self):
         """
@@ -21,7 +26,7 @@ class TestExerciseScenarios(object):
         4. Upload image successfully.
         """
         # Check content "背景图片来源" displayed on the  lower left side of the form
-        page_check.text_to_be_present_in_element("wrapperImgFromBox")
+        page_check.text_to_be_present_in_element("wrapperImgFromBox", "背景图片来源")
         # Check ‘百度首页’ button on the upper right side of the form
         page_check.element_to_be_clickable("new-userinfo-baiduIndex")
         # Check icon besides the login user on the upper right side of the form
@@ -35,41 +40,46 @@ class TestExerciseScenarios(object):
         # Check there is "选择文件" button on the right of the form
         page_check.element_to_be_clickable("uploadImg")
 
-    def test_form_input(self, file_path):
+    def test_form_input(self):
         """
         Form input test:
         1. Try inputting invalid image url .
         2. Try to upload invalid format file.
         """
+        cwd = os.getcwd()
+        file_path = cwd + '/test_automation_exercise.py'
         # Check inputting invalid image url
         content = self.driver.find_element_by_id("stuurl")
         content.send_keys("test invalid url")
         self.driver.find_element_by_id("sbobj").click()
-        error_mesage = self.driver.find_element_by_class_name("stutips")
-        assert error_mesage == "请输入正确的网址格式"
-        # Upload *.txt format file will get error
+        error_message = self.driver.find_element_by_class_name("stutips").text
+        assert error_message == "请输入正确的网址格式"
+        # Upload *.py format file will get error
         self.driver.find_element_by_class_name("st_camera_on").click()
         upload_image = self.driver.find_element_by_id("stfile")
         upload_image.send_keys(file_path)
         upload_image.submit()
         self.switch_window()
         # Check page is redirected to the result page
-        error_message = page_check.visibility_of_element_located("graph-noresult-text1")
+        error_message = self.driver.find_element_by_class_name("graph-noresult-text1").text
         assert error_message == "功能优化中，敬请期待"
 
-    def test_upload_image(self, image_path):
+    def test_upload_image(self):
         """
         Upload file test:
         1. Upload an image and check the image is uploaded successfully
         """
+        cwd = os.getcwd()
+        image_path = cwd + '/image.jpg'
         # Upload image will redirect to the new page
         self.driver.find_element_by_class_name("st_camera_on").click()
+        time.sleep(5)
         upload_image = self.driver.find_element_by_id("stfile")
         upload_image.send_keys(image_path)
         upload_image.submit()
         self.switch_window()
         # Check page is redirected to the result page
-        info = page_check.visibility_of_element_located("general-title")
+        info = self.driver.find_element_by_class_name("general-title").text
         assert info == '相似图片'
 
     def test_link_redirect(self):
@@ -110,14 +120,12 @@ class TestExerciseScenarios(object):
         for window in all_windows:
             if window != current_window:
                 self.driver.switch_to.window(window)
+        print("ok")
 
 
 if __name__ == "__main__":
-    cwd = os.getcwd()
-    image_path = cwd + '/image.jpg'
-    file_path = cwd + '/test_automation_exercise.py'
     TestExerciseScenarios.test_webpage_layout()
-    TestExerciseScenarios.test_form_input(file_path)
-    TestExerciseScenarios.test_upload_image(image_path)
+    TestExerciseScenarios.test_form_input()
+    TestExerciseScenarios.test_upload_image()
     TestExerciseScenarios.test_link_redirect()
     TestExerciseScenarios.test_security()
